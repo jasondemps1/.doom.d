@@ -8,6 +8,12 @@
 
 (pixel-scroll-precision-mode t)
 
+(defmacro with-system (type &rest body)
+  "Evaluate BODY if `system-type` equals TYPE."
+  (declare (indent defun))
+  `(when (eq system-type ',type)
+     ,@body))
+
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
@@ -32,13 +38,18 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
-;(setq doom-font "Fira Code-12")
+                                        ;(setq doom-font "Fira Code-12")
 ;;(setq doom-font (font-spec :family "Fira Code" :size 16))
-(setq doom-font (font-spec :family "IBM Plex Mono Text" :size 20 :weight 'semi-bold)
-      doom-variable-pitch-font (font-spec :family "IBM Plex Mono Text" :size 20 :weight 'bold))
+(when (or (eq system-type 'windows-nt)
+	  (eq system-type 'darwin) )
+  (setq doom-font (font-spec :family "IBM Plex Mono Text" :size 20 :weight 'semi-bold)
+        doom-variable-pitch-font (font-spec :family "IBM Plex Mono Text" :size 20 :weight 'bold)))
+
+(with-system gnu/linux
+  (setq doom-font (font-spec :family "IBM Plex Mono" :size 16 :weight 'semi-bold)
+        doom-variable-pitch-font (font-spec :family "IBM Plex Mono" :size 16 :weight 'bold)))
+
 (setq line-spacing 0.1)
-;(setq doom-font (font-spec :family "Liberation Mono" :size 16 :weight 'regular))
-;
 (+global-word-wrap-mode +1)
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
@@ -58,7 +69,7 @@
 (setq org-directory "~/org/")
 
 (setq kill-whole-line t)
-; (setq confirm-kill-emacs t)
+                                        ; (setq confirm-kill-emacs t)
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -95,7 +106,7 @@
 ;; they are implemented.
 (use-package! treesit-auto
   :config
-  ;(treesit-auto-install 'prompt)
+                                        ;(treesit-auto-install 'prompt)
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 (after! lsp
@@ -110,12 +121,12 @@
 
 ;;(setq inferior-lisp-program "sbcl --dynamic-space-size 4GB")
 ;;(setq sly-lisp-implementations
-      ;;'((sbcl ("C:\\Program Files\\SBCL\\sbcl.exe")))) ;; "--dynamic-space-size" "4GB"))))
+;;'((sbcl ("C:\\Program Files\\SBCL\\sbcl.exe")))) ;; "--dynamic-space-size" "4GB"))))
 
 (use-package! sly
- :config
- (setq
-  sly-complete-symbol-function #'sly-flex-completions))
+  :config
+  (setq
+   sly-complete-symbol-function #'sly-flex-completions))
 
 (use-package! symbol-overlay
   :bind ("s-'" . symbol-overlay-put)
@@ -146,4 +157,4 @@
 ;; TODO: Get this to work correctly..
 ;; Set popup rule for powershell buffer
 (set-popup-rules!
- '(("^\\*Powershell" :vslot 3 :side 'bottom :size 0.35  :modeline t :select t)))
+  '(("^\\*Powershell" :vslot 3 :side 'bottom :size 0.35  :modeline t :select t)))
